@@ -1,0 +1,29 @@
+// NOTE: noImplicitany ku aktifin jadinya pasti error kalau ada any dan juga noimplicit return nya juga ku nyalain
+
+// NOTE: Nexttime kalau mau buat project baru lagi dan menggunakan TS dan nodemon untuk development, gunakan aja tsx agar lebih simple tidak perlu pusing pusing build manual ataupun nentuin esm Vs cjs kalau pakai ts-node. jangan lupa pakai module dan moduleResolutionnya "nodenext"
+
+{
+  "compilerOptions": {
+    "outDir": "./dist" /* ✅ AKTIFKAN: Output folder untuk compiled JS */,
+    "rootDir": "./src" /* ✅ AKTIFKAN: Source code directory */,
+    "module": "nodenext",
+    "target": "esnext",
+    "sourceMap": true /* ✅ AKTIFKAN: Untuk debugging */,
+    "noEmitOnError": true /* ✅ AKTIFKAN: Jangan compile jika ada error */,
+    "removeComments": false /* ✅ AKTIFKAN: Keep comments in dev */,
+    "declaration": true /* ✅ AKTIFKAN: Generate .d.ts files */,
+    "noImplicitAny": true /* ✅ AKTIFKAN: No implicit any */,
+    "noUnusedLocals": true /* ✅ AKTIFKAN: Detect unused variables */,
+    "noUnusedParameters": false /* TIDAK DIAKTIFKAN: Detect unused parameters */,
+    "noImplicitReturns": true /* ✅ AKTIFKAN: All code paths must return */,
+    "moduleResolution": "nodenext" /* ✅ AKTIFKAN: Node.js module resolution */,
+    "allowSyntheticDefaultImports": true /* ✅ AKTIFKAN: Import compatibility */,
+    "resolveJsonModule": true /* ✅ AKTIFKAN: Import JSON files */
+  },
+  "ts-node": {
+    "esm": true,
+    "preferTsExts": true
+  },
+  "include": ["src/**/*"] /* ✅ TAMBAHKAN: Files to include */,
+  "exclude": ["node_modules", "dist", "**/*.test.ts"] /* ✅ TAMBAHKAN */
+}
