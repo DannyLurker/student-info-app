@@ -5,7 +5,6 @@ const studentSchema = new Schema({
     type: String,
     default: "student",
     require: true,
-    select: false,
   },
   username: {
     type: String,
@@ -21,9 +20,11 @@ const studentSchema = new Schema({
   },
   grade: {
     type: Number,
+    require: true,
   },
   major: {
     type: String,
+    require: true,
   },
   studentAttandance: {
     type: mongoose.Schema.Types.ObjectId,
