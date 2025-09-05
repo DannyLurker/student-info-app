@@ -5,10 +5,6 @@ const assignmentScheme = new Schema({
     type: String,
     required: true,
   },
-  teacherName: {
-    type: String,
-    required: true,
-  },
   teacherId: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
@@ -30,10 +26,6 @@ const assignmentScheme = new Schema({
 
 const examScheme = new Schema({
   subject: {
-    type: String,
-    required: true,
-  },
-  teacherName: {
     type: String,
     required: true,
   },

@@ -26,26 +26,14 @@ const studentSchema = new Schema(
       type: Number,
       required: true,
     },
+    homeroomTeacher: {
+      type: String,
+      required: true,
+    },
     major: {
       type: String,
       required: true,
     },
-    studentAttandance: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "studentAttendance",
-    },
-    studentMark: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "StudentMark",
-      },
-    ],
-    problemPoint: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "StudentProblemPoint",
-      },
-    ],
   },
   { timestamps: true, versionKey: true }
 );

@@ -42,7 +42,7 @@ const studentAttendanceSchema = new Schema(
 );
 
 const studentAttendanceModel = mongoose.model(
-  "studentAttendance",
+  "StudentAttendance",
   studentAttendanceSchema
 );
 
