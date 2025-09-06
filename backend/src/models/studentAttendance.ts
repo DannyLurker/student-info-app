@@ -22,16 +22,6 @@ const studentAttendanceSchema = new Schema(
             message: "Date cannot be in the future",
           },
         },
-        description: {
-          type: String,
-          maxlength: [500, "Description must be at most 500 characters"],
-          trim: true,
-        },
-        recordedBy: {
-          type: mongoose.Schema.Types.ObjectId,
-          required: [true, "Recorded by is required"],
-          ref: "Teacher",
-        },
         _id: false, // Disable _id for subdocuments
       },
     ],
@@ -55,11 +45,6 @@ const studentAttendanceSchema = new Schema(
           minlength: [5, "Description must be at least 5 characters"],
           maxlength: [500, "Description must be at most 500 characters"],
           trim: true,
-        },
-        recordedBy: {
-          type: mongoose.Schema.Types.ObjectId,
-          required: [true, "Recorded by is required"],
-          ref: "Teacher",
         },
         _id: false,
       },
@@ -85,11 +70,7 @@ const studentAttendanceSchema = new Schema(
           maxlength: [500, "Description must be at most 500 characters"],
           trim: true,
         },
-        recordedBy: {
-          type: mongoose.Schema.Types.ObjectId,
-          required: [true, "Recorded by is required"],
-          ref: "Teacher",
-        },
+
         _id: false,
       },
     ],

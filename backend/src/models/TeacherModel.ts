@@ -7,7 +7,6 @@ const teacherSchema = new Schema(
       type: String,
       default: "teacher",
       required: [true, "Role is required"],
-      immutable: true,
     },
     username: {
       type: String,
@@ -46,7 +45,7 @@ const teacherSchema = new Schema(
     homeroomClass: {
       grade: {
         type: Number,
-        min: [1, "Grade must be at least 1"],
+        min: [1, "Grade must be at least 10"],
         max: [12, "Grade must be at most 12"],
       },
       major: {

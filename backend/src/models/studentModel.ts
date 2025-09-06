@@ -1,6 +1,42 @@
 import mongoose, { Schema } from "mongoose";
 import bcrypt from "bcryptjs";
 
+const studentSubjects = {
+  10: {
+    major: {
+      accountant: ["Math"],
+      softwareEngineer: ["Math"],
+    },
+  },
+  11: {
+    major: {
+      accountant: ["Math"],
+      softwareEngineer: [
+        "Math",
+        "English",
+        "Chinese",
+        "Web",
+        "Database",
+        "OOP",
+        "Mobile",
+        "Civic Education",
+        "Physical Education",
+        "Religion",
+        "History",
+        "Conversation",
+        "Indonesian",
+        "Creative Entrepreneurial Products",
+      ],
+    },
+  },
+  12: {
+    major: {
+      accountant: ["Math"],
+      softwareEngineer: ["Math"],
+    },
+  },
+};
+
 const studentSchema = new Schema(
   {
     role: {
@@ -37,7 +73,7 @@ const studentSchema = new Schema(
     grade: {
       type: Number,
       required: [true, "Grade is required"],
-      min: [1, "Grade must be at least 1"],
+      min: [10, "Grade must be at least 10"],
       max: [12, "Grade must be at most 12"],
     },
     homeroomTeacher: {
@@ -49,6 +85,20 @@ const studentSchema = new Schema(
       type: String,
       required: [true, "Major is required"],
       trim: true,
+      enum: {
+        values: ["accountant", "softwareEngineer"],
+        message: "Major must be either accountant or software engineer",
+      },
+    },
+    subjects: {
+      type: [String],
+      default: function () {
+        return (
+          studentSubjects[this.grade as 10 | 11 | 12]?.major[
+            this.major as "accountant" | "softwareEngineer"
+          ] || []
+        );
+      },
     },
     isActive: {
       type: Boolean,

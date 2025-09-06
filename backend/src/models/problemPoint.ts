@@ -14,7 +14,7 @@ const problemPointSchema = new Schema(
           type: Number,
           required: [true, "Problem point is required"],
           min: [1, "Point must be at least 1"],
-          max: [100, "Point cannot exceed 100"],
+          max: [150, "Point cannot exceed 150"],
         },
         description: {
           type: String,

@@ -23,31 +23,35 @@ const studentMarkSchema = new Schema(
           type: String,
           required: [true, "Subject is required"],
           trim: true,
+          ref: "student",
         },
         teacherId: {
           type: mongoose.Schema.Types.ObjectId,
           required: [true, "Teacher ID is required"],
           ref: "Teacher",
         },
-        assessmentType: {
-          type: String,
-          required: [true, "Assessment type is required"],
-          enum: {
-            values: ["assignment", "quiz", "exam", "project"],
-            message:
-              "Assessment type must be: assignment, quiz, exam, or project",
+        assessment: [
+          {
+            type: {
+              type: String,
+              required: [true, "Assessment type is required"],
+              enum: {
+                values: ["assignment", "quiz", "exam", "project"],
+                message:
+                  "Assessment type must be: assignment, quiz, exam, or project",
+              },
+            },
+            number: {
+              type: Number,
+              required: [true, "Assessment number is required"],
+            },
           },
-        },
+        ],
         mark: {
           type: Number,
           required: [true, "Mark is required"],
           min: [0, "Mark must be at least 0"],
           max: [100, "Mark must be at most 100"],
-        },
-        maxMark: {
-          type: Number,
-          default: 100,
-          min: [1, "Maximum mark must be at least 1"],
         },
         date: {
           type: Date,
@@ -80,15 +84,14 @@ const studentMarkSchema = new Schema(
 studentMarkSchema.index({ studentId: 1, academicYear: 1, semester: 1 });
 studentMarkSchema.index({ "marks.subject": 1 });
 studentMarkSchema.index({ "marks.teacherId": 1 });
-studentMarkSchema.index({ "marks.date": 1 });
+studentMarkSchema.index({ "marks.date": -1 });
+studentMarkSchema.index({ "marks.assessmentNumber": 1 });
 
 // Validation: mark should not exceed maxMark
 studentMarkSchema.pre("save", function (next) {
   for (const mark of this.marks) {
-    if (mark.mark > mark.maxMark) {
-      return next(
-        new Error(`Mark ${mark.mark} exceeds maximum mark ${mark.maxMark}`)
-      );
+    if (mark.mark > 100) {
+      return next(new Error(`Mark ${mark.mark} exceeds maximum mark`));
     }
   }
   next();
