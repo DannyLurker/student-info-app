@@ -4,17 +4,63 @@ import bcrypt from "bcryptjs";
 const studentSubjects = {
   10: {
     major: {
-      accountant: ["Math"],
-      softwareEngineer: ["Math"],
+      accounting: [
+        "Fundamentals of Fluency",
+        "English",
+        "Civic Education",
+        "Math",
+        "Religion",
+        "Physical Education",
+        "Information Technology",
+        "Indonesian",
+        "Art",
+        "Conversation",
+        "History",
+        "Fundamentals of Science and Social",
+        "Mandarin",
+      ],
+      software_engineering: [
+        "Math",
+        "English",
+        "Mandarin",
+        "Fundamentals of Fluency",
+        "Civic Education",
+        "Physical Education",
+        "Religion",
+        "History",
+        "Conversation",
+        "Indonesian",
+        "Art",
+        "Fundamentals of Science and Social",
+        "Information Technology",
+      ],
     },
   },
   11: {
     major: {
-      accountant: ["Math"],
-      softwareEngineer: [
+      accounting: [
+        "Indonesian",
+        "AP",
+        "Creative Entrepreneurial Products",
+        "English",
+        "Physical Education",
+        "History",
+        "PAL",
+        "Computerized Accounting",
+        "Conversation",
+        "Financial Accounting",
+        "Religion",
+        "Math",
+        "Civic Education",
+        "Banking",
+        "Mandarin",
+        "Microsoft",
+        "Taxation",
+      ],
+      software_engineering: [
         "Math",
         "English",
-        "Chinese",
+        "Mandarin",
         "Web",
         "Database",
         "OOP",
@@ -26,13 +72,39 @@ const studentSubjects = {
         "Conversation",
         "Indonesian",
         "Creative Entrepreneurial Products",
+        "Microsoft",
       ],
     },
   },
   12: {
     major: {
-      accountant: ["Math"],
-      softwareEngineer: ["Math"],
+      accounting: [
+        "AP",
+        "Computerized Accounting",
+        "Indonesian",
+        "Banking",
+        "English",
+        "Civic Education",
+        "Taxation",
+        "Financial Accounting",
+        "Conversation",
+        "PAL",
+        "Math",
+        "Religion",
+      ],
+      software_engineering: [
+        "Creative Entrepreneurial Products",
+        "OOP",
+        "Database",
+        "Web",
+        "English",
+        "Mobile",
+        "Conversation",
+        "Math",
+        "Civic Education",
+        "Religion",
+        "Indonesian",
+      ],
     },
   },
 };
@@ -86,8 +158,8 @@ const studentSchema = new Schema(
       required: [true, "Major is required"],
       trim: true,
       enum: {
-        values: ["accountant", "softwareEngineer"],
-        message: "Major must be either accountant or software engineer",
+        values: ["accounting", "software_engineering"],
+        message: "Major must be either accounting or software engineer",
       },
     },
     subjects: {
@@ -95,7 +167,7 @@ const studentSchema = new Schema(
       default: function () {
         return (
           studentSubjects[this.grade as 10 | 11 | 12]?.major[
-            this.major as "accountant" | "softwareEngineer"
+            this.major as "accounting" | "software_engineering"
           ] || []
         );
       },

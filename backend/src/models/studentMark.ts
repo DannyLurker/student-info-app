@@ -23,7 +23,15 @@ const studentMarkSchema = new Schema(
           type: String,
           required: [true, "Subject is required"],
           trim: true,
-          ref: "student",
+          validate: {
+            validator: async function (value) {
+              const Student = mongoose.model("Student");
+              const parentDoc = this.ownerDocument();
+              const student = await Student.findById(parentDoc.studentId);
+              return student && student.subjects.includes(value);
+            },
+            message: "Invalid subject for this student",
+          },
         },
         teacherId: {
           type: mongoose.Schema.Types.ObjectId,
@@ -81,11 +89,17 @@ const studentMarkSchema = new Schema(
 );
 
 // Compound indexes for efficient queries
-studentMarkSchema.index({ studentId: 1, academicYear: 1, semester: 1 });
-studentMarkSchema.index({ "marks.subject": 1 });
-studentMarkSchema.index({ "marks.teacherId": 1 });
-studentMarkSchema.index({ "marks.date": -1 });
-studentMarkSchema.index({ "marks.assessmentNumber": 1 });
+studentMarkSchema.index(
+  {
+    studentId: 1,
+    academicYear: 1,
+    semester: 1,
+    "marks.subject": 1,
+    "marks.assessment.type": 1,
+    "marks.assessment.number": 1,
+  },
+  { unique: true }
+);
 
 // Validation: mark should not exceed maxMark
 studentMarkSchema.pre("save", function (next) {

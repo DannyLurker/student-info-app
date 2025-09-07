@@ -45,7 +45,7 @@ const teacherSchema = new Schema(
     homeroomClass: {
       grade: {
         type: Number,
-        min: [1, "Grade must be at least 10"],
+        min: [10, "Grade must be at least 10"],
         max: [12, "Grade must be at most 12"],
       },
       major: {
