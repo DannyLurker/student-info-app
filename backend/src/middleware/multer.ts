@@ -1,7 +1,7 @@
 import multer, { FileFilterCallback } from "multer";
 import path from "path";
 import { IRequest } from "../types/expressTypes.js";
-import AppError from "../utils/appError.js";
+import AppError from "../utils/error/appError.js";
 
 const ALLOWED_EXTENSIONS = [".xls", ".xlsx"];
 const ALLOWED_MIME_TYPES = [

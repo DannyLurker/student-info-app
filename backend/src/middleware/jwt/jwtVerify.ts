@@ -1,6 +1,6 @@
 import jwt, { JwtPayload } from "jsonwebtoken";
 import catchAsync from "express-async-handler";
-import AppError from "../../utils/appError.js";
+import AppError from "../../utils/error/appError.js";
 import studentModel from "../../models/studentModel.js";
 
 interface IJwtPayload extends JwtPayload {
