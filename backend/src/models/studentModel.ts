@@ -1,5 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 import bcrypt from "bcryptjs";
+import validator from "validator";
 
 const studentSubjects = {
   10: {
@@ -113,6 +114,7 @@ const studentSchema = new Schema(
   {
     role: {
       type: String,
+      enum: ["student"],
       default: "student",
       required: [true, "Role is required"],
       immutable: true,
@@ -131,10 +133,7 @@ const studentSchema = new Schema(
       unique: true,
       trim: true,
       lowercase: true,
-      match: [
-        /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/,
-        "Invalid email format",
-      ],
+      validate: [validator.isEmail, "Invalid email format"],
     },
     password: {
       type: String,
@@ -176,6 +175,14 @@ const studentSchema = new Schema(
       type: Boolean,
       default: true,
     },
+    otp: {
+      type: String,
+      default: null,
+    },
+    otpExpires: {
+      type: Date,
+      default: null,
+    },
   },
   {
     timestamps: true,
@@ -183,8 +190,8 @@ const studentSchema = new Schema(
   }
 );
 
-studentSchema.index({ email: 1 });
-studentSchema.index({ username: 1 });
+studentSchema.index({ email: 1 }, { unique: true });
+studentSchema.index({ username: 1 }, { unique: true });
 studentSchema.index({ grade: 1, major: 1 });
 studentSchema.index({ homeroomTeacher: 1 });
 

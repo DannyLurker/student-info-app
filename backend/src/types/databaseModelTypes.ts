@@ -1,6 +1,7 @@
-import mongoose, { Document } from "mongoose";
+import mongoose, { HydratedDocument } from "mongoose";
 
-export interface IStudent extends Document {
+// Interface POJO murni (tanpa extend Document)
+export interface IStudent {
   role: "student";
   username: string;
   email: string;
@@ -8,38 +9,35 @@ export interface IStudent extends Document {
   grade: number;
   major: string;
   subjects: string[];
-  homeroomTeacher: mongoose.Schema.Types.ObjectId;
+  homeroomTeacher: mongoose.Schema.Types.ObjectId | string;
   isActive: boolean;
+  otp?: string;
+  otpExpires?: Date;
   createdAt?: Date;
   updatedAt?: Date;
   __v?: number;
 }
 
-export interface IStudentAttendance extends Document {
+// HydratedDocument type khusus Student
+export type StudentDoc = HydratedDocument<IStudent>;
+
+// -------------------------
+
+export interface IStudentAttendance {
   studentId: mongoose.Schema.Types.ObjectId;
-  absent: [
-    {
-      date: Date;
-    }
-  ];
-  permission: [
-    {
-      date: Date;
-      description: string;
-    }
-  ];
-  sick: [
-    {
-      date: Date;
-      description: string;
-    }
-  ];
+  absent: { date: Date }[];
+  permission: { date: Date; description: string }[];
+  sick: { date: Date; description: string }[];
   createdAt?: Date;
   updatedAt?: Date;
   __v?: number;
 }
 
-interface IProblemPoint {
+export type StudentAttendanceDoc = HydratedDocument<IStudentAttendance>;
+
+// -------------------------
+
+export interface IProblemPoint {
   point: number;
   description: string;
   category: "discipline" | "academic" | "social" | "other";
@@ -51,7 +49,7 @@ interface IProblemPoint {
   resolutionNote?: string;
 }
 
-export interface IStudentProblemPoint extends Document {
+export interface IStudentProblemPoint {
   studentId: mongoose.Schema.Types.ObjectId;
   problemPoints: IProblemPoint[];
   createdAt?: Date;
@@ -59,12 +57,16 @@ export interface IStudentProblemPoint extends Document {
   __v?: number;
 }
 
-interface IAssessment {
+export type StudentProblemPointDoc = HydratedDocument<IStudentProblemPoint>;
+
+// -------------------------
+
+export interface IAssessment {
   type: "assignment" | "quiz" | "exam" | "project";
   number: number;
 }
 
-interface IMark {
+export interface IMark {
   subject: string;
   teacherId: mongoose.Schema.Types.ObjectId;
   assessment: IAssessment;
@@ -74,7 +76,7 @@ interface IMark {
   description?: string;
 }
 
-export interface IStudentMark extends Document {
+export interface IStudentMark {
   studentId: mongoose.Schema.Types.ObjectId;
   academicYear: string;
   semester: 1 | 2;
@@ -84,8 +86,12 @@ export interface IStudentMark extends Document {
   __v?: number;
 }
 
+export type StudentMarkDoc = HydratedDocument<IStudentMark>;
+
+// -------------------------
+
 export interface IHomeroomClass {
-  grade?: number; // optional karena bisa tidak diisi
+  grade?: number;
   major?: string;
 }
 
@@ -94,7 +100,7 @@ export interface ITeachingGrade {
   major: string;
 }
 
-export interface ITeacher extends Document {
+export interface ITeacher {
   role: string;
   username: string;
   email: string;
@@ -106,3 +112,5 @@ export interface ITeacher extends Document {
   createdAt?: Date;
   updatedAt?: Date;
 }
+
+export type TeacherDoc = HydratedDocument<ITeacher>;
