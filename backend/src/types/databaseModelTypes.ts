@@ -84,12 +84,12 @@ export interface IStudentMark extends Document {
   __v?: number;
 }
 
-interface IHomeroomClass {
+export interface IHomeroomClass {
   grade?: number; // optional karena bisa tidak diisi
   major?: string;
 }
 
-interface ITeachingGrade {
+export interface ITeachingGrade {
   grade: number;
   major: string;
 }

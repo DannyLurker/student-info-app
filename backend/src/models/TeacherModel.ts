@@ -5,6 +5,7 @@ const teacherSchema = new Schema(
   {
     role: {
       type: String,
+      enum: ["teacher", "principal"],
       default: "teacher",
       required: [true, "Role is required"],
     },
