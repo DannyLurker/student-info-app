@@ -1,11 +1,11 @@
 import mongoose, { Schema } from "mongoose";
 import bcrypt from "bcryptjs";
 
-const teacherSchema = new Schema(
+const staffSchema = new Schema(
   {
     role: {
       type: String,
-      enum: ["teacher", "principal"],
+      enum: ["teacher", "principal", "admin"],
       default: "teacher",
       required: [true, "Role is required"],
     },
@@ -80,12 +80,12 @@ const teacherSchema = new Schema(
   }
 );
 
-teacherSchema.index({ email: 1 });
-teacherSchema.index({ username: 1 });
-teacherSchema.index({ teachingSubjects: 1 });
-teacherSchema.index({ "homeroomClass.grade": 1, "homeroomClass.major": 1 });
+staffSchema.index({ email: 1 });
+staffSchema.index({ username: 1 });
+staffSchema.index({ teachingSubjects: 1 });
+staffSchema.index({ "homeroomClass.grade": 1, "homeroomClass.major": 1 });
 
-teacherSchema.pre("save", async function (next) {
+staffSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
 
   try {
@@ -98,12 +98,12 @@ teacherSchema.pre("save", async function (next) {
 });
 
 // Compare password method
-teacherSchema.methods.comparePassword = async function (
+staffSchema.methods.comparePassword = async function (
   candidatePassword: string
 ) {
   return bcrypt.compare(candidatePassword, this.password);
 };
 
-const teacherModel = mongoose.model("Teacher", teacherSchema);
+const staffModel = mongoose.model("Staff", staffSchema);
 
-export default teacherModel;
+export default staffModel;

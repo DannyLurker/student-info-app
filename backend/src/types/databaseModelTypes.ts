@@ -2,6 +2,7 @@ import mongoose, { HydratedDocument } from "mongoose";
 
 // Interface POJO murni (tanpa extend Document)
 export interface IStudent {
+  _id?: mongoose.Schema.Types.ObjectId | string;
   role: "student";
   username: string;
   email: string;
@@ -24,6 +25,7 @@ export type StudentDoc = HydratedDocument<IStudent>;
 // -------------------------
 
 export interface IStudentAttendance {
+  _id?: mongoose.Schema.Types.ObjectId | string;
   studentId: mongoose.Schema.Types.ObjectId;
   absent: { date: Date }[];
   permission: { date: Date; description: string }[];
@@ -38,6 +40,7 @@ export type StudentAttendanceDoc = HydratedDocument<IStudentAttendance>;
 // -------------------------
 
 export interface IProblemPoint {
+  _id?: mongoose.Schema.Types.ObjectId | string;
   point: number;
   description: string;
   category: "discipline" | "academic" | "social" | "other";
@@ -50,6 +53,7 @@ export interface IProblemPoint {
 }
 
 export interface IStudentProblemPoint {
+  _id?: mongoose.Schema.Types.ObjectId | string;
   studentId: mongoose.Schema.Types.ObjectId;
   problemPoints: IProblemPoint[];
   createdAt?: Date;
@@ -67,6 +71,7 @@ export interface IAssessment {
 }
 
 export interface IMark {
+  _id?: mongoose.Schema.Types.ObjectId | string;
   subject: string;
   teacherId: mongoose.Schema.Types.ObjectId;
   assessment: IAssessment;
@@ -77,6 +82,7 @@ export interface IMark {
 }
 
 export interface IStudentMark {
+  _id?: mongoose.Schema.Types.ObjectId | string;
   studentId: mongoose.Schema.Types.ObjectId;
   academicYear: string;
   semester: 1 | 2;
@@ -100,7 +106,8 @@ export interface ITeachingGrade {
   major: string;
 }
 
-export interface ITeacher {
+export interface IStaff {
+  _id?: mongoose.Schema.Types.ObjectId | string;
   role: string;
   username: string;
   email: string;
@@ -113,4 +120,4 @@ export interface ITeacher {
   updatedAt?: Date;
 }
 
-export type TeacherDoc = HydratedDocument<ITeacher>;
+export type StaffDoc = HydratedDocument<IStaff>;
