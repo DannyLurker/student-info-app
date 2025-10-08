@@ -9,10 +9,12 @@ import AppError from "./utils/error/appError.js";
 import globalErrorHandler from "./utils/error/globalErrorHandler.js";
 import { Request, Response, NextFunction } from "express";
 import { getDirname } from "./utils/path/pathUtils.js";
+import router from "./routes/userControllers.js";
 import dotenv from "dotenv";
 dotenv.config();
 
 const app = express();
+const userRouter = router;
 
 const __dirname = getDirname(import.meta.url);
 
@@ -55,9 +57,7 @@ app.use(
 );
 
 // Routes
-app.get("/home", (req: Request, res: Response) => {
-  res.json("Hi");
-});
+app.use("/api/v1/users", userRouter);
 
 // Uncaught rotues
 app.all("/{*any}", (req: Request, res: Response, next: NextFunction) => {

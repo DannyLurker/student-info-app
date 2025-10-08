@@ -122,7 +122,6 @@ const studentSchema = new Schema(
     username: {
       type: String,
       required: [true, "Username is required"],
-      unique: true,
       trim: true,
       minlength: [3, "Username must be at least 3 characters"],
       maxlength: [50, "Username must be at most 50 characters"],
@@ -130,7 +129,6 @@ const studentSchema = new Schema(
     email: {
       type: String,
       required: [true, "Email is required"],
-      unique: true,
       trim: true,
       lowercase: true,
       validate: [validator.isEmail, "Invalid email format"],
