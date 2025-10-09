@@ -4,6 +4,7 @@ import studentModel from "../../models/studentModel.js";
 import { StudentDoc } from "../../types/databaseModelTypes.js";
 import { toObjectId } from "../../utils/helpers/toObjectId.js";
 import * as XLSX from "xlsx";
+import bcrypt from "bcryptjs";
 
 export const manualStudentSignupLogic = catchAsync(async (req, res, next) => {
   const {
@@ -67,19 +68,26 @@ export const excelStudentSignupLogic = catchAsync(async (req, res, next) => {
 
   const jsonData = XLSX.utils.sheet_to_json(sheet);
 
+  //Hashing method
+  const salt = await bcrypt.genSalt(12);
+  async function passwordHashing(plainPassword: string, salt: string) {
+    return await bcrypt.hash(plainPassword, salt);
+  }
+
   // Kalau insert banyak data langsung pakai insertMany aja
-  const students = await studentModel.insertMany(
-    jsonData.map((data: any) => ({
+  const studentsData = await Promise.all(
+    jsonData.map(async (data: any) => ({
       role: "student",
       username: data.username,
       email: data.email,
-      password: data.password,
-      confirmPassword: data.confirmPassword,
+      password: await passwordHashing(data.password, salt),
       grade: data.grade,
       homeroomTeacher: toObjectId(data.homeroomTeacher),
       major: data.major,
     }))
   );
+
+  const students = await studentModel.insertMany(studentsData);
 
   res.status(201).json({
     status: "success",
