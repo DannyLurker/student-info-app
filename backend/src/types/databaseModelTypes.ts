@@ -1,4 +1,4 @@
-import mongoose, { HydratedDocument } from "mongoose";
+import mongoose from "mongoose";
 
 // Interface POJO murni (tanpa extend Document)
 export interface IStudent {
@@ -19,9 +19,6 @@ export interface IStudent {
   __v?: number;
 }
 
-// HydratedDocument type khusus Student
-export type StudentDoc = HydratedDocument<IStudent>;
-
 // -------------------------
 
 export interface IStudentAttendance {
@@ -34,8 +31,6 @@ export interface IStudentAttendance {
   updatedAt?: Date;
   __v?: number;
 }
-
-export type StudentAttendanceDoc = HydratedDocument<IStudentAttendance>;
 
 // -------------------------
 
@@ -60,8 +55,6 @@ export interface IStudentProblemPoint {
   updatedAt?: Date;
   __v?: number;
 }
-
-export type StudentProblemPointDoc = HydratedDocument<IStudentProblemPoint>;
 
 // -------------------------
 
@@ -92,8 +85,6 @@ export interface IStudentMark {
   __v?: number;
 }
 
-export type StudentMarkDoc = HydratedDocument<IStudentMark>;
-
 // -------------------------
 
 export interface IHomeroomClass {
@@ -116,8 +107,9 @@ export interface IStaff {
   homeroomClass?: IHomeroomClass;
   teachingGrades: ITeachingGrade[];
   isActive?: boolean;
+  otp?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-export type StaffDoc = HydratedDocument<IStaff>;
+export type IUser = IStudent | IStaff;

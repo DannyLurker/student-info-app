@@ -1,5 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 import bcrypt from "bcryptjs";
+import { studentSubjects } from "./studentModel.js";
+import validator from "validator";
 
 const staffSchema = new Schema(
   {
@@ -23,35 +25,51 @@ const staffSchema = new Schema(
       unique: true,
       trim: true,
       lowercase: true,
-      match: [
-        /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/,
-        "Invalid email format",
-      ],
+      validate: [validator.isEmail, "Invalid email format"],
     },
     password: {
       type: String,
       required: [true, "Password is required"],
       select: false,
-      minlength: [6, "Password must be at least 6 characters"],
+      minlength: [8, "Password must be at least 6 characters"],
     },
-    teachingSubjects: {
-      type: [String],
-      validate: {
-        validator: function (subjects: string[]) {
-          return subjects.length > 0;
+    teachingSubjects: [
+      {
+        type: String,
+        validate: {
+          validator: function (subject: string[]) {
+            const { teachingGrades } = this;
+
+            // Ambil semua subject valid dari grade & major yang dia ajar
+            const validSubjects = teachingGrades.flatMap(
+              (gradeInfo: {
+                grade: 10 | 11 | 12;
+                major: "accounting" | "software_engineering";
+              }) => {
+                const subjectsForMajor =
+                  studentSubjects[gradeInfo.grade]?.major[gradeInfo.major] ||
+                  [];
+                return subjectsForMajor;
+              }
+            );
+
+            return validSubjects.includes(subject);
+          },
+          message: (props: mongoose.ValidatorProps) =>
+            `${props.value} is not a valid subject for assigned grades/majors.`,
         },
-        message: "At least one teaching subject is required",
       },
-    },
+    ],
     homeroomClass: {
       grade: {
         type: Number,
-        min: [10, "Grade must be at least 10"],
-        max: [12, "Grade must be at most 12"],
+        enum: [10, 11, 12],
+        required: [true, "Grade is required"],
       },
       major: {
         type: String,
-        trim: true,
+        enum: ["software_engineering", "accounting"],
+        required: [true, "Major is required"],
       },
     },
     teachingGrades: [

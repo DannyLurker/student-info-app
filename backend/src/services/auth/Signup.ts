@@ -1,10 +1,11 @@
 import catchAsync from "express-async-handler";
 import AppError from "../../utils/error/appError.js";
 import studentModel from "../../models/studentModel.js";
-import { StudentDoc } from "../../types/databaseModelTypes.js";
 import { toObjectId } from "../../utils/helpers/toObjectId.js";
 import * as XLSX from "xlsx";
 import bcrypt from "bcryptjs";
+import { IStaff, IStudent } from "../../types/databaseModelTypes.js";
+import staffModel from "../../models/staffModel.js";
 
 export const manualStudentSignupLogic = catchAsync(async (req, res, next) => {
   const {
@@ -17,11 +18,19 @@ export const manualStudentSignupLogic = catchAsync(async (req, res, next) => {
     major,
   } = req.body;
 
-  const existingStudent: StudentDoc | null = await studentModel.findOne({
+  const existingStudent: IStudent | null = await studentModel.findOne({
     email,
   });
 
-  if (!username || !email || !password || !confrimPassword) {
+  if (
+    !username ||
+    !email ||
+    !password ||
+    !confrimPassword ||
+    !grade ||
+    !homeroomTeacher ||
+    !major
+  ) {
     return next(new AppError("All fields must be filled", 400));
   }
 
@@ -47,7 +56,10 @@ export const manualStudentSignupLogic = catchAsync(async (req, res, next) => {
 
   res.status(201).json({
     status: "success",
-    data: newStudent.toObject(),
+    message: "You have successfully signed up",
+    data: {
+      newStudent,
+    },
   });
 });
 
@@ -93,5 +105,114 @@ export const excelStudentSignupLogic = catchAsync(async (req, res, next) => {
     status: "success",
     count: students.length,
     data: students,
+  });
+});
+
+export const manualStaffSignupLogic = catchAsync(async (req, res, next) => {
+  const {
+    username,
+    email,
+    password,
+    confirmPassword,
+    teachingSubjects,
+    homeroomClass,
+    teachingGrades,
+  } = req.body;
+
+  if (!username || !email || !password || !confirmPassword) {
+    return next(new AppError("All fields must be filled", 400));
+  }
+
+  if (password !== confirmPassword) {
+    return next(new AppError("Password and confirm password must match", 400));
+  }
+
+  const existingStaff: IStaff = await staffModel.findOne({ email });
+  if (existingStaff) {
+    return next(new AppError("Email already registered", 400));
+  }
+
+  const newStaff = await staffModel.create({
+    role: "teacher",
+    username,
+    email,
+    password,
+    teachingSubjects,
+    homeroomClass,
+    teachingGrades,
+  });
+
+  res.status(201).json({
+    status: "success",
+    message: "You have successfully signed up",
+    data: {
+      newStaff,
+    },
+  });
+});
+
+export const excelStaffSignupLogic = catchAsync(async (req, res, next) => {
+  const xlsxFile = req.file;
+
+  if (!xlsxFile) {
+    return next(new AppError("XLSX file required", 400));
+  }
+
+  // If using multer.memoryStorage()
+  const workbook = XLSX.read(xlsxFile.buffer, { type: "buffer" });
+
+  // If using multer.diskStorage()
+  // const workbook = XLSX.readFile(xlsxFile.path);
+
+  const sheet = workbook.Sheets[workbook.SheetNames[0]];
+
+  const jsonData = XLSX.utils.sheet_to_json(sheet);
+
+  //Hashing method
+  const salt = await bcrypt.genSalt(12);
+  async function passwordHashing(plainPassword: string, salt: string) {
+    return await bcrypt.hash(plainPassword, salt);
+  }
+
+  // Kalau insert banyak data langsung pakai insertMany aja
+  const staffsData = await Promise.all(
+    jsonData.map(async (data: any) => {
+      let subjects = [];
+      let grades = [];
+      let homeroom = null;
+
+      try {
+        if (data.teachingSubjects) {
+          subjects = JSON.parse(data.teachingSubjects);
+        }
+        if (data.teachingGrades) {
+          grades = JSON.parse(data.teachingGrades);
+        }
+        if (data.homeroomClass) {
+          homeroom = JSON.parse(data.homeroomClass);
+        }
+      } catch (err) {
+        console.error("JSON parse error:", err);
+      }
+
+      return {
+        role: "teacher",
+        username: data.username,
+        email: data.email,
+        password: await passwordHashing(data.password, salt),
+        teachingSubjects: subjects,
+        homeroomClass: homeroom,
+        teachingGrades: grades,
+      };
+    })
+  );
+
+  const staffs = await staffModel.insertMany(staffsData, { ordered: false });
+
+  res.status(201).json({
+    status: "success",
+    successLength: staffs.length,
+    totalStaffslength: staffsData.length,
+    data: staffs,
   });
 });

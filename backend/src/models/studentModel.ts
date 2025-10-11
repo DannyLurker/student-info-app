@@ -2,7 +2,7 @@ import mongoose, { Schema } from "mongoose";
 import bcrypt from "bcryptjs";
 import validator from "validator";
 
-const studentSubjects = {
+export const studentSubjects = {
   10: {
     major: {
       accounting: [
