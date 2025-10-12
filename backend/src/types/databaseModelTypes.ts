@@ -1,5 +1,32 @@
 import mongoose from "mongoose";
 
+export type SubjectsAvailable =
+  | "fundamentals_of_fluency"
+  | "english"
+  | "civic_education"
+  | "math"
+  | "religion"
+  | "physical_education"
+  | "information_technology"
+  | "indonesian"
+  | "art"
+  | "conversation"
+  | "history"
+  | "fundamentals_of_science_and_social"
+  | "mandarin"
+  | "ap"
+  | "creative_entrepreneurial_products"
+  | "pal"
+  | "computerized_accounting"
+  | "financial_accounting"
+  | "banking"
+  | "microsoft"
+  | "taxation"
+  | "web"
+  | "database"
+  | "oop"
+  | "mobile";
+
 // Interface POJO murni (tanpa extend Document)
 export interface IStudent {
   _id?: mongoose.Schema.Types.ObjectId | string;
@@ -9,7 +36,7 @@ export interface IStudent {
   password?: string;
   grade: number;
   major: string;
-  subjects: string[];
+  subjects: SubjectsAvailable[];
   homeroomTeacher: mongoose.Schema.Types.ObjectId | string;
   isActive: boolean;
   otp?: string;
@@ -65,7 +92,7 @@ export interface IAssessment {
 
 export interface IMark {
   _id?: mongoose.Schema.Types.ObjectId | string;
-  subject: string;
+  subject: SubjectsAvailable;
   teacherId: mongoose.Schema.Types.ObjectId;
   assessment: IAssessment;
   mark: number;
@@ -88,13 +115,13 @@ export interface IStudentMark {
 // -------------------------
 
 export interface IHomeroomClass {
-  grade?: number;
-  major?: string;
+  grade: 10 | 11 | 12;
+  major: "accounting" | "software_engineering";
 }
 
 export interface ITeachingGrade {
-  grade: number;
-  major: string;
+  grade: 10 | 11 | 12;
+  major: "accounting" | "software_engineering";
 }
 
 export interface IStaff {
@@ -103,7 +130,7 @@ export interface IStaff {
   username: string;
   email: string;
   password?: string;
-  teachingSubjects: string[];
+  teachingSubjects: SubjectsAvailable[];
   homeroomClass?: IHomeroomClass;
   teachingGrades: ITeachingGrade[];
   isActive?: boolean;

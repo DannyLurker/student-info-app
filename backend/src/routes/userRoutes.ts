@@ -8,10 +8,13 @@ import {
 import upload from "../middleware/multer.js";
 import jwtVerify from "../middleware/jwt/jwtVerify.js";
 import restrictTo from "../middleware/restrictTo.js";
+import { staffLoginLogic, studentLoginLogic } from "../services/auth/login.js";
 
 const router = express.Router();
 
 //Auth Routes
+
+// Signup Routes
 router.post(
   "/student-signup",
   jwtVerify,
@@ -36,5 +39,9 @@ router.post(
   upload.single("excelFile"),
   excelStaffSignupLogic
 );
+
+// Login Routes
+router.post("/student-login", studentLoginLogic);
+router.post("/staff-login", staffLoginLogic);
 
 export default router;
