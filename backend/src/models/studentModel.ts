@@ -205,12 +205,6 @@ studentSchema.pre("save", async function (next) {
   }
 });
 
-studentSchema.methods.comparePassword = async function (
-  candidatePassword: string
-) {
-  return bcrypt.compare(candidatePassword, this.password);
-};
-
 const studentModel = mongoose.model("Student", studentSchema);
 
 export default studentModel;
