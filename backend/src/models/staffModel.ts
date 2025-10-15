@@ -87,6 +87,14 @@ const staffSchema = new Schema(
         },
       },
     ],
+    otp: {
+      type: String,
+      default: null,
+    },
+    otpExpires: {
+      type: Date,
+      default: null,
+    },
     isActive: {
       type: Boolean,
       default: true,
