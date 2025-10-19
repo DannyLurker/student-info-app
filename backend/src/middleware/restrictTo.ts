@@ -8,7 +8,7 @@ const restrictTo = (...roles: AllowedRoles[]) => {
     if (
       req.user &&
       req.user.role !== "student" &&
-      roles.includes(req.user.role)
+      roles.includes(req.user.role as AllowedRoles)
     ) {
       return next();
     }

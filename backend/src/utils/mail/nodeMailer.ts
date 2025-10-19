@@ -12,13 +12,13 @@ export const sendEmail = async (options: Options) => {
     port: 587,
     secure: false,
     auth: {
-      user: process.env.EMAIL,
+      user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS,
     },
   });
 
   const mailOptions = {
-    from: `Students Info App`,
+    from: process.env.EMAIL_FROM,
     to: options.email,
     subject: options.subject,
     html: options.html,

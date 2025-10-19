@@ -56,7 +56,7 @@ export const manualStudentSignupLogic = catchAsync(async (req, res, next) => {
 
   res.status(201).json({
     status: "success",
-    message: "You have successfully signed up",
+    message: "Successfully signed up",
     data: {
       newStudent,
     },
@@ -97,6 +97,7 @@ export const excelStudentSignupLogic = catchAsync(async (req, res, next) => {
     });
     res.status(201).json({
       status: "success",
+      message: "Successfully signed up",
       count: students.length,
       data: students,
     });
@@ -163,7 +164,7 @@ export const manualStaffSignupLogic = catchAsync(async (req, res, next) => {
 
   res.status(201).json({
     status: "success",
-    message: "You have successfully signed up",
+    message: "Successfully signed up",
     data: {
       newStaff,
     },
@@ -233,6 +234,7 @@ export const excelStaffSignupLogic = catchAsync(async (req, res, next) => {
     const staffs = await staffModel.insertMany(staffsData, { ordered: true });
     res.status(201).json({
       status: "success",
+      message: "Successfully signed up",
       staffslength: staffsData.length,
       data: staffs,
     });

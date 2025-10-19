@@ -1,10 +1,12 @@
 import jwt, { JwtPayload } from "jsonwebtoken";
 import catchAsync from "express-async-handler";
 import AppError from "../../utils/error/appError.js";
+import staffModel from "../../models/staffModel.js";
 import studentModel from "../../models/studentModel.js";
 
 interface IJwtPayload extends JwtPayload {
   id: string;
+  role: string;
 }
 
 const jwtVerify = catchAsync(async (req, res, next) => {
@@ -21,8 +23,15 @@ const jwtVerify = catchAsync(async (req, res, next) => {
     process.env.JWT_SECRET as string
   ) as IJwtPayload;
   const userId = decoded.id;
+  const userRole = decoded.role;
 
-  const currentUser = await studentModel.findById(userId);
+  let currentUser;
+
+  if (userRole != "student") {
+    currentUser = await staffModel.findById(userId);
+  } else {
+    currentUser = await studentModel.findById(userId);
+  }
 
   if (!currentUser) {
     return next(

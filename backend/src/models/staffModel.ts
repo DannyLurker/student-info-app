@@ -14,7 +14,6 @@ const staffSchema = new Schema(
     username: {
       type: String,
       required: [true, "Username is required"],
-      unique: true,
       trim: true,
       minlength: [3, "Username must be at least 3 characters"],
       maxlength: [50, "Username must be at most 50 characters"],
@@ -22,7 +21,6 @@ const staffSchema = new Schema(
     email: {
       type: String,
       required: [true, "Email is required"],
-      unique: true,
       trim: true,
       lowercase: true,
       validate: [validator.isEmail, "Invalid email format"],
@@ -106,8 +104,8 @@ const staffSchema = new Schema(
   }
 );
 
-staffSchema.index({ email: 1 });
-staffSchema.index({ username: 1 });
+staffSchema.index({ email: 1 }, { unique: true });
+staffSchema.index({ username: 1 }, { unique: true });
 staffSchema.index({ teachingSubjects: 1 });
 staffSchema.index({ "homeroomClass.grade": 1, "homeroomClass.major": 1 });
 

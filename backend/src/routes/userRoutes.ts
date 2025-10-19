@@ -9,6 +9,14 @@ import upload from "../middleware/multer.js";
 import jwtVerify from "../middleware/jwt/jwtVerify.js";
 import restrictTo from "../middleware/restrictTo.js";
 import { staffLoginLogic, studentLoginLogic } from "../services/auth/login.js";
+import {
+  staffForgetPassword,
+  studentForgetPassword,
+} from "../services/auth/forgetPassword.js";
+import {
+  staffResetPasswordAccount,
+  studentRestPasswordAccount,
+} from "../services/auth/resetPassword.js";
 
 const router = express.Router();
 
@@ -43,5 +51,13 @@ router.post(
 // Login Routes
 router.post("/student-login", studentLoginLogic);
 router.post("/staff-login", staffLoginLogic);
+
+// forget Password
+router.post("/student-forget-password", studentForgetPassword);
+router.post("/staff-forget-password", staffForgetPassword);
+
+// Reset Password
+router.post("/student-reset-password/:id", studentRestPasswordAccount);
+router.post("/staff-reset-password/:id", staffResetPasswordAccount);
 
 export default router;
