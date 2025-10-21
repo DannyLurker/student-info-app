@@ -67,11 +67,11 @@ router.post("/student-reset-password/:id", studentRestPasswordAccount);
 router.post("/staff-reset-password/:id", staffResetPasswordAccount);
 
 // Resend Email
-router.post("/student-resend-email/:id", studentResendEmail);
-router.post("/staff-resend-email/:id", staffResendEmail);
+router.post("/student-resend-email", studentResendEmail);
+router.post("/staff-resend-email", staffResendEmail);
 
 // Logout Email
-router.post("/student-logout", studentLogout);
-router.post("/staff-logout", staffLogout);
+router.post("/student-logout", jwtVerify, studentLogout);
+router.post("/staff-logout", jwtVerify, staffLogout);
 
 export default router;

@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Document } from "mongoose";
 
 export type SubjectsAvailable =
   | "fundamentals_of_fluency"
@@ -39,11 +39,27 @@ export interface IStudent {
   subjects: SubjectsAvailable[];
   homeroomTeacher: mongoose.Schema.Types.ObjectId | string;
   isActive: boolean;
-  otp?: string;
-  otpExpires?: Date;
+  otp?: string | null;
+  otpExpires?: Date | null;
   createdAt?: Date;
   updatedAt?: Date;
   __v?: number;
+}
+
+export interface IStudentDocument extends Document {
+  role: "student";
+  username: string;
+  email: string;
+  password?: string;
+  grade: number;
+  major: string;
+  subjects: SubjectsAvailable[];
+  homeroomTeacher: mongoose.Schema.Types.ObjectId | string;
+  isActive: boolean;
+  otp?: string | null;
+  otpExpires?: Date | null;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 // -------------------------
@@ -134,9 +150,27 @@ export interface IStaff {
   homeroomClass?: IHomeroomClass;
   teachingGrades: ITeachingGrade[];
   isActive?: boolean;
-  otp?: string;
+  otp?: string | null;
+  otpExpires?: Date | null;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface IStaffDocument extends Document {
+  role: string;
+  username: string;
+  email: string;
+  password?: string;
+  teachingSubjects: SubjectsAvailable[];
+  homeroomClass?: IHomeroomClass;
+  teachingGrades: ITeachingGrade[];
+  isActive?: boolean;
+  otp?: string | null;
+  otpExpires?: Date | null;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
 export type IUser = IStudent | IStaff;
+
+export type IUserDocument = IStudentDocument | IStaffDocument;

@@ -1,116 +1,72 @@
 import catchAsync from "express-async-handler";
 import AppError from "../../utils/error/appError.js";
-import studentModel from "../../models/studentModel.js";
+import { sendEmail } from "../../utils/mail/nodeMailer.js";
 import generateOtp from "../../utils/mail/generateOtp.js";
 import loadTemplate from "../../utils/mail/loadTemplate.js";
-import { sendEmail } from "../../utils/mail/nodeMailer.js";
+import bcrypt from "bcryptjs";
+import studentModel from "../../models/studentModel.js";
 import staffModel from "../../models/staffModel.js";
-import mongoose from "mongoose";
 
-export const studentResendEmail = catchAsync(async (req, res, next) => {
-  const { id } = req.params;
+// Temporary solution Model: any, it should be Model: mongoose.Model<IUserDocument>
+const resendEmail = (Model: any, resetPath: string) =>
+  catchAsync(async (req, res, next) => {
+    const { email } = req.body;
 
-  if (!id) {
-    return next(new AppError("All filled must be filled", 400));
-  }
+    if (!email) {
+      return next(new AppError("Email field must be filled", 400));
+    }
 
-  const objectId = new mongoose.Types.ObjectId(id);
+    const existingUser = await Model.findOne({ email });
+    if (!existingUser) return next(new AppError("existingUser not found", 404));
 
-  const existingStudent = await studentModel.findById(objectId);
+    // Rate limit 1 menit
+    if (
+      existingUser.otpExpires &&
+      (existingUser.otpExpires as Date).getTime() >
+        Date.now() + 24 * 60 * 60 * 1000 - 60 * 1000
+    ) {
+      return next(new AppError("Please wait 1 minute before resending", 429));
+    }
 
-  if (!existingStudent) {
-    return next(new AppError("User not found", 404));
-  }
+    const otp = generateOtp();
+    const otpExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    existingUser.otp = await bcrypt.hash(otp, 10);
+    existingUser.otpExpires = otpExpires;
+    await existingUser.save({ validateBeforeSave: false });
 
-  const otp = generateOtp();
-  const otpExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    const html = loadTemplate("emailTemplate.hbs", {
+      title: "Reset your password - OTP Verification",
+      username: existingUser.username,
+      otp,
+      message: "Use this OTP to reset your password:",
+      link: `${resetPath}/${existingUser.id}`,
+      time: new Date(),
+    });
 
-  existingStudent.otp = otp;
-  existingStudent.otpExpires = otpExpires;
+    try {
+      await sendEmail({
+        email: existingUser.email,
+        subject: "Reset your password - OTP Verification",
+        html,
+      });
 
-  await existingStudent.save({ validateBeforeSave: false });
-
-  const htmlTemplate = loadTemplate("emailTemplate.hbs", {
-    title: "Reset your password - OTP Verification",
-    username: existingStudent.username,
-    otp,
-    message:
-      "Use the following one-time password (OTP) to reset your account password: ",
-    link: `/student-reset-password/${existingStudent.id}`,
-    time: new Date(),
+      res.status(200).json({
+        status: "Success",
+        message: "A new OTP has been sent to your email",
+      });
+    } catch (error) {
+      existingUser.otp = null;
+      existingUser.otpExpires = null;
+      await existingUser.save({ validateBeforeSave: false });
+      return next(new AppError("Failed to send OTP email", 500));
+    }
   });
 
-  try {
-    await sendEmail({
-      email: existingStudent.email,
-      subject: "Reset your password - OTP Verification",
-      html: htmlTemplate,
-    });
-
-    res.status(200).json({
-      status: "Success",
-      message: "A new OTP is send to your email",
-    });
-  } catch (error) {
-    existingStudent.otp = null;
-    existingStudent.otpExpires = null;
-    existingStudent.save({ validateBeforeSave: false });
-    return next(
-      new AppError("Failed to send OTP email. Please try again later.", 500)
-    );
-  }
-});
-
-export const staffResendEmail = catchAsync(async (req, res, next) => {
-  const { id } = req.params;
-
-  if (!id) {
-    return next(new AppError("All filled must be filled", 400));
-  }
-
-  const objectId = new mongoose.Types.ObjectId(id);
-
-  const existingStudent = await staffModel.findById(objectId);
-
-  if (!existingStudent) {
-    return next(new AppError("User not found", 404));
-  }
-
-  const otp = generateOtp();
-  const otpExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
-
-  existingStudent.otp = otp;
-  existingStudent.otpExpires = otpExpires;
-
-  await existingStudent.save({ validateBeforeSave: false });
-
-  const htmlTemplate = loadTemplate("emailTemplate.hbs", {
-    title: "Reset your password - OTP Verification",
-    username: existingStudent.username,
-    otp,
-    message:
-      "Use the following one-time password (OTP) to reset your account password: ",
-    link: `/student-reset-password/${existingStudent.id}`,
-    time: new Date(),
-  });
-
-  try {
-    await sendEmail({
-      email: existingStudent.email,
-      subject: "Reset your password - OTP Verification",
-      html: htmlTemplate,
-    });
-
-    res.status(200).json({
-      status: "Success",
-      message: "A new OTP is send to your email",
-    });
-  } catch (error) {
-    existingStudent.otp = null;
-    existingStudent.otpExpires = null;
-    existingStudent.save({ validateBeforeSave: false });
-    return next(
-      new AppError("Failed to send OTP email. Please try again later.", 500)
-    );
-  }
-});
+export const studentResendEmail = resendEmail(
+  studentModel,
+  "/student-reset-password"
+);
+export const staffResendEmail = resendEmail(
+  staffModel,
+  "/staff-reset-password"
+);
