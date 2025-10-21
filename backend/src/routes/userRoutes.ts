@@ -69,7 +69,7 @@ router.post("/staff-reset-password/:id", staffResetPasswordAccount);
 router.post("/student-resend-email/:id", studentResendEmail);
 router.post("/staff-resend-email/:id", staffResendEmail);
 
-// Resend Email
+// Logout Email
 router.post("/student-logout", studentLogout);
 router.post("/staff-logout", staffLogout);
 
