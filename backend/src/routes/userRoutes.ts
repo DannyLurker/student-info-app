@@ -50,6 +50,7 @@ router.post(
 router.post(
   "/staff-signup-with-excel",
   upload.single("excelFile"),
+  restrictTo("admin", "principal"),
   excelStaffSignupLogic
 );
 
