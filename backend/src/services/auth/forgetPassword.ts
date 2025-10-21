@@ -10,7 +10,7 @@ export const studentForgetPassword = catchAsync(async (req, res, next) => {
   const { email } = req.body;
 
   if (!email) {
-    return next(new AppError("Email filled must be filled", 400));
+    return next(new AppError("Email field must be filled", 400));
   }
 
   const existingStudent = await studentModel.findOne({ email });
@@ -62,7 +62,7 @@ export const staffForgetPassword = catchAsync(async (req, res, next) => {
   const { email } = req.body;
 
   if (!email) {
-    return next(new AppError("Email filled must be filled", 400));
+    return next(new AppError("Email field must be filled", 400));
   }
 
   const existingStaff = await staffModel.findOne({ email });

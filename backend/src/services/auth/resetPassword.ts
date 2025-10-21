@@ -46,7 +46,6 @@ export const studentRestPasswordAccount = catchAsync(async (req, res, next) => {
 
 export const staffResetPasswordAccount = catchAsync(async (req, res, next) => {
   const { id } = req.params;
-  console.log(id);
 
   if (!id || typeof id !== "string") {
     return next(new AppError("Invalid or missing id", 400));
@@ -59,11 +58,8 @@ export const staffResetPasswordAccount = catchAsync(async (req, res, next) => {
   }
 
   const objectId = new mongoose.Types.ObjectId(id);
-  console.log(objectId);
 
   const existingStaff = await staffModel.findById(objectId);
-
-  console.log("testing: ", existingStaff);
 
   if (!existingStaff) {
     return next(new AppError("User not found", 404));

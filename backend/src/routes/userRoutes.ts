@@ -17,6 +17,11 @@ import {
   staffResetPasswordAccount,
   studentRestPasswordAccount,
 } from "../services/auth/resetPassword.js";
+import {
+  staffResendEmail,
+  studentResendEmail,
+} from "../services/auth/resendEmail.js";
+import { staffLogout, studentLogout } from "../services/auth/logout.js";
 
 const router = express.Router();
 
@@ -59,5 +64,13 @@ router.post("/staff-forget-password", staffForgetPassword);
 // Reset Password
 router.post("/student-reset-password/:id", studentRestPasswordAccount);
 router.post("/staff-reset-password/:id", staffResetPasswordAccount);
+
+// Resend Email
+router.post("/student-resend-email/:id", studentResendEmail);
+router.post("/staff-resend-email/:id", staffResendEmail);
+
+// Resend Email
+router.post("/student-logout", studentLogout);
+router.post("/staff-logout", staffLogout);
 
 export default router;
