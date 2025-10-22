@@ -8,7 +8,7 @@ import studentModel from "../../models/studentModel.js";
 import staffModel from "../../models/staffModel.js";
 
 // Temporary solution Model: any, it should be Model: mongoose.Model<IUserDocument>
-const resendEmail = (Model: any, resetPath: string) =>
+const resendEmail = (Model: any, path: string) =>
   catchAsync(async (req, res, next) => {
     const { email } = req.body;
 
@@ -39,7 +39,7 @@ const resendEmail = (Model: any, resetPath: string) =>
       username: existingUser.username,
       otp,
       message: "Use this OTP to reset your password:",
-      link: `${resetPath}/${existingUser.id}`,
+      link: `${path}/${existingUser.id}`,
       time: new Date(),
     });
 

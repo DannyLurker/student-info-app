@@ -1,17 +1,12 @@
 import express from "express";
-import {
-  manualStudentSignupLogic,
-  excelStudentSignupLogic,
-  manualStaffSignupLogic,
-  excelStaffSignupLogic,
-} from "../services/auth/signup.js";
+
 import upload from "../middleware/multer.js";
 import jwtVerify from "../middleware/jwt/jwtVerify.js";
 import restrictTo from "../middleware/restrictTo.js";
 import { staffLoginLogic, studentLoginLogic } from "../services/auth/login.js";
 import {
-  staffForgetPassword,
-  studentForgetPassword,
+  staffForgetPasswordLogic,
+  studentForgetPasswordLogic,
 } from "../services/auth/forgetPassword.js";
 import {
   staffResetPasswordAccount,
@@ -21,7 +16,13 @@ import {
   staffResendEmail,
   studentResendEmail,
 } from "../services/auth/resendEmail.js";
-import { staffLogout, studentLogout } from "../services/auth/logout.js";
+import { userLogout } from "../services/auth/logout.js";
+import {
+  excelStaffSignupLogic,
+  excelStudentSignupLogic,
+  manualStaffSignupLogic,
+  manualStudentSignupLogic,
+} from "../services/auth/Signup.js";
 
 const router = express.Router();
 
@@ -59,8 +60,8 @@ router.post("/student-login", studentLoginLogic);
 router.post("/staff-login", staffLoginLogic);
 
 // forget Password
-router.post("/student-forget-password", studentForgetPassword);
-router.post("/staff-forget-password", staffForgetPassword);
+router.post("/student-forget-password", studentForgetPasswordLogic);
+router.post("/staff-forget-password", staffForgetPasswordLogic);
 
 // Reset Password
 router.post("/student-reset-password/:id", studentRestPasswordAccount);
@@ -71,7 +72,6 @@ router.post("/student-resend-email", studentResendEmail);
 router.post("/staff-resend-email", staffResendEmail);
 
 // Logout Email
-router.post("/student-logout", jwtVerify, studentLogout);
-router.post("/staff-logout", jwtVerify, staffLogout);
+router.post("/user-logout", jwtVerify, userLogout);
 
 export default router;
