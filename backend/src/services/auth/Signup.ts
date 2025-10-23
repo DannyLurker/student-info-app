@@ -4,64 +4,100 @@ import studentModel from "../../models/studentModel.js";
 import { toObjectId } from "../../utils/helpers/toObjectId.js";
 import * as XLSX from "xlsx";
 import bcrypt from "bcryptjs";
-import { IStaff, IStudent } from "../../types/databaseModelTypes.js";
+import {
+  IHomeroomClass,
+  IStaff,
+  IStudent,
+  ITeachingGrade,
+  SubjectsAvailable,
+} from "../../types/databaseModelTypes.js";
 import staffModel from "../../models/staffModel.js";
+import mongoose from "mongoose";
 
-export const manualStudentSignupLogic = catchAsync(async (req, res, next) => {
-  const {
-    username,
-    email,
-    password,
-    confrimPassword,
-    grade,
-    homeroomTeacher,
-    major,
-  } = req.body;
+type BodyData = {
+  username: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  grade: number;
+  homeroomTeacher: mongoose.Schema.Types.ObjectId | string;
+  major: "software_engineering" | "accounting";
+  teachingSubjects: SubjectsAvailable[];
+  homeroomClass: IHomeroomClass;
+  teachingGrades: ITeachingGrade;
+  [key: string]: any;
+};
 
-  const existingStudent: IStudent | null = await studentModel.findOne({
-    email,
+const manualSignupLogic = (model: any, mandatoryFields: string[]) =>
+  catchAsync(async (req, res, next) => {
+    const {
+      username,
+      email,
+      password,
+      confirmPassword,
+      grade,
+      homeroomTeacher,
+      major,
+      teachingSubjects,
+      homeroomClass,
+      teachingGrades,
+    } = req.body;
+
+    const body: BodyData = {
+      username,
+      email,
+      password,
+      confirmPassword,
+      grade,
+      homeroomTeacher,
+      major,
+      teachingSubjects,
+      homeroomClass,
+      teachingGrades,
+    };
+
+    const missingFields = mandatoryFields.filter((field) => {
+      const value = body[field];
+      if (value === undefined || value === null) return true;
+      if (typeof value === "string" && value.trim() === "") return true;
+      return false;
+    });
+
+    if (missingFields.length > 0) {
+      return next(
+        new AppError(
+          `Missing required fields: ${missingFields.join(", ")}`,
+          400
+        )
+      );
+    }
+
+    if (password !== confirmPassword) {
+      return next(
+        new AppError("Password and confirm password must be same", 400)
+      );
+    }
+
+    const newUser = await model.create(body);
+
+    res.status(201).json({
+      status: "success",
+      message: "Successfully signed up",
+      data: newUser,
+    });
   });
 
-  if (
-    !username ||
-    !email ||
-    !password ||
-    !confrimPassword ||
-    !grade ||
-    !homeroomTeacher ||
-    !major
-  ) {
-    return next(new AppError("All fields must be filled", 400));
-  }
+// Student login logic
 
-  if (password !== confrimPassword) {
-    return next(
-      new AppError("Password and confirm password must be same", 400)
-    );
-  }
-
-  if (existingStudent) {
-    return next(new AppError("Email already registered", 400));
-  }
-
-  const newStudent = await studentModel.create({
-    role: "student",
-    username,
-    email,
-    password,
-    grade,
-    homeroomTeacher: toObjectId(homeroomTeacher),
-    major,
-  });
-
-  res.status(201).json({
-    status: "success",
-    message: "Successfully signed up",
-    data: {
-      newStudent,
-    },
-  });
-});
+export const manualStudentSignupLogic = manualSignupLogic(studentModel, [
+  "username",
+  "email",
+  "password",
+  "confirmPassword",
+  "grade",
+  "homeroomTeacher",
+  "major",
+]);
 
 export const excelStudentSignupLogic = catchAsync(async (req, res, next) => {
   const xlsxFile = req.file;
@@ -128,48 +164,17 @@ export const excelStudentSignupLogic = catchAsync(async (req, res, next) => {
   }
 });
 
-export const manualStaffSignupLogic = catchAsync(async (req, res, next) => {
-  const {
-    username,
-    email,
-    password,
-    confirmPassword,
-    teachingSubjects,
-    homeroomClass,
-    teachingGrades,
-  } = req.body;
+// Staff login logic
 
-  if (!username || !email || !password || !confirmPassword) {
-    return next(new AppError("All fields must be filled", 400));
-  }
-
-  if (password !== confirmPassword) {
-    return next(new AppError("Password and confirm password must match", 400));
-  }
-
-  const existingStaff: IStaff = await staffModel.findOne({ email });
-  if (existingStaff) {
-    return next(new AppError("Email already registered", 400));
-  }
-
-  const newStaff = await staffModel.create({
-    role: "teacher",
-    username,
-    email,
-    password,
-    teachingSubjects,
-    homeroomClass,
-    teachingGrades,
-  });
-
-  res.status(201).json({
-    status: "success",
-    message: "Successfully signed up",
-    data: {
-      newStaff,
-    },
-  });
-});
+export const manualStaffSignupLogic = manualSignupLogic(staffModel, [
+  "username",
+  "email",
+  "password",
+  "confirmPassword",
+  "teachingSubjects",
+  "homeroomClass",
+  "teachingGrades",
+]);
 
 export const excelStaffSignupLogic = catchAsync(async (req, res, next) => {
   const xlsxFile = req.file;
