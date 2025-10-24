@@ -11,8 +11,7 @@ type Replacements = {
   username: string;
   message: string;
   otp: string;
-  link: string;
-  time: Date;
+  time: string;
 };
 
 const loadTemplate = (

@@ -2,25 +2,18 @@ import catchAsync from "express-async-handler";
 import AppError from "../../utils/error/appError.js";
 import studentModel from "../../models/studentModel.js";
 import staffModel from "../../models/staffModel.js";
-import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 
 const resetPasswordLogic = (model: any) =>
   catchAsync(async (req, res, next) => {
-    const { id } = req.params;
+    const { email, otp, password, passwordConfirm } = req.body;
 
-    if (!id || typeof id !== "string") {
-      return next(new AppError("Invalid or missing id", 400));
-    }
-
-    const { otp, password, passwordConfirm } = req.body;
-
-    if (!otp || !password || !passwordConfirm) {
+    if (!otp || !password || !email || !passwordConfirm) {
       return next(new AppError("All fields must be filled", 400));
     }
 
     const existingUser = await model.findOne({
-      _id: new mongoose.Types.ObjectId(id),
+      email,
     });
 
     if (password !== passwordConfirm) {

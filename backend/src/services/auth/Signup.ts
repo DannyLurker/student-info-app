@@ -1,18 +1,17 @@
 import catchAsync from "express-async-handler";
 import AppError from "../../utils/error/appError.js";
 import studentModel from "../../models/studentModel.js";
-import { toObjectId } from "../../utils/helpers/toObjectId.js";
 import * as XLSX from "xlsx";
 import bcrypt from "bcryptjs";
 import {
   IHomeroomClass,
-  IStaff,
-  IStudent,
   ITeachingGrade,
   SubjectsAvailable,
 } from "../../types/databaseModelTypes.js";
 import staffModel from "../../models/staffModel.js";
 import mongoose from "mongoose";
+import { excelHandlers } from "../../utils/helpers/excelHandlers.js";
+import { handleMongooseError } from "../../utils/error/handleMongooseError.js";
 
 type BodyData = {
   username: string;
@@ -87,6 +86,33 @@ const manualSignupLogic = (model: any, mandatoryFields: string[]) =>
     });
   });
 
+const excelSignupLogic = (model: any, type: "staff" | "student") =>
+  catchAsync(async (req, res, next) => {
+    const file = req.file;
+    if (!file) return next(new AppError("XLSX file required", 400));
+
+    const workbook = XLSX.read(file.buffer, { type: "buffer" });
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    const jsonData = XLSX.utils.sheet_to_json(sheet);
+
+    const salt = await bcrypt.genSalt(12);
+    const handler = excelHandlers[type];
+
+    const usersData = await Promise.all(jsonData.map((d) => handler(d, salt)));
+
+    try {
+      const users = await model.insertMany(usersData, { ordered: true });
+      res.status(201).json({
+        status: "success",
+        message: "Successfully signed up",
+        staffslength: users.length,
+        data: users,
+      });
+    } catch (error) {
+      handleMongooseError(res, error);
+    }
+  });
+
 // Student login logic
 
 export const manualStudentSignupLogic = manualSignupLogic(studentModel, [
@@ -99,70 +125,10 @@ export const manualStudentSignupLogic = manualSignupLogic(studentModel, [
   "major",
 ]);
 
-export const excelStudentSignupLogic = catchAsync(async (req, res, next) => {
-  const xlsxFile = req.file;
-  if (!xlsxFile) return next(new AppError("XLSX file required", 400));
-
-  // If using multer.memoryStorage()
-  const workbook = XLSX.read(xlsxFile.buffer, { type: "buffer" });
-  const sheet = workbook.Sheets[workbook.SheetNames[0]];
-  const jsonData = XLSX.utils.sheet_to_json(sheet);
-
-  // Hashing method
-  const salt = await bcrypt.genSalt(12);
-  async function passwordHashing(plainPassword: string, salt: string) {
-    return await bcrypt.hash(plainPassword, salt);
-  }
-
-  // Transformasi data Excel ke format schema Mongoose
-  const studentsData = await Promise.all(
-    jsonData.map(async (data: any) => ({
-      role: "student",
-      username: data.username,
-      email: data.email,
-      password: await passwordHashing(data.password, salt),
-      grade: data.grade,
-      homeroomTeacher: toObjectId(data.homeroomTeacher),
-      major: data.major,
-    }))
-  );
-
-  try {
-    const students = await studentModel.insertMany(studentsData, {
-      ordered: true,
-    });
-    res.status(201).json({
-      status: "success",
-      message: "Successfully signed up",
-      count: students.length,
-      data: students,
-    });
-  } catch (error: any) {
-    if (error.code === 11000) {
-      const match = error.message.match(
-        /dup key:\s*\{\s*"?([\w.]+)"?\s*:\s*"([^"]+)"\s*\}/
-      );
-      const conflictField = match?.[1] || "unknown";
-      const conflictValue = match?.[2] || "unknown";
-
-      res.status(409).json({
-        status: "fail",
-        message: `${conflictField} "${conflictValue}" already exists`,
-        field: conflictField,
-        value: conflictValue,
-      });
-    }
-
-    if (error.name === "ValidationError") {
-      const errors = Object.values(error.errors).map((err: any) => err.message);
-      res.status(400).json({
-        status: "fail",
-        message: "Validation failed",
-        errors,
-      });
-    }
-  }
-});
+export const excelStudentSignupLogic = excelSignupLogic(
+  studentModel,
+  "student"
+);
 
 // Staff login logic
 
@@ -176,97 +142,4 @@ export const manualStaffSignupLogic = manualSignupLogic(staffModel, [
   "teachingGrades",
 ]);
 
-export const excelStaffSignupLogic = catchAsync(async (req, res, next) => {
-  const xlsxFile = req.file;
-
-  if (!xlsxFile) {
-    return next(new AppError("XLSX file required", 400));
-  }
-
-  // If using multer.memoryStorage()
-  const workbook = XLSX.read(xlsxFile.buffer, { type: "buffer" });
-
-  // If using multer.diskStorage()
-  // const workbook = XLSX.readFile(xlsxFile.path);
-
-  const sheet = workbook.Sheets[workbook.SheetNames[0]];
-
-  const jsonData = XLSX.utils.sheet_to_json(sheet);
-
-  //Hashing method
-  const salt = await bcrypt.genSalt(12);
-  async function passwordHashing(plainPassword: string, salt: string) {
-    return await bcrypt.hash(plainPassword, salt);
-  }
-
-  // Kalau insert banyak data langsung pakai insertMany aja
-  const staffsData = await Promise.all(
-    jsonData.map(async (data: any) => {
-      let subjects = [];
-      let grades = [];
-      let homeroom = null;
-
-      try {
-        if (data.teachingSubjects) {
-          const parsed = JSON.parse(data.teachingSubjects);
-          subjects = parsed.map((subject: string) => {
-            return subject.toLocaleLowerCase().trim();
-          });
-        }
-        if (data.teachingGrades) {
-          grades = JSON.parse(data.teachingGrades);
-        }
-        if (data.homeroomClass) {
-          homeroom = JSON.parse(data.homeroomClass);
-        }
-      } catch (err) {
-        console.error("JSON parse error:", err);
-      }
-
-      return {
-        role: "teacher",
-        username: data.username,
-        email: data.email,
-        password: await passwordHashing(data.password, salt),
-        teachingSubjects: subjects,
-        homeroomClass: homeroom,
-        teachingGrades: grades,
-      };
-    })
-  );
-
-  try {
-    const staffs = await staffModel.insertMany(staffsData, { ordered: true });
-    res.status(201).json({
-      status: "success",
-      message: "Successfully signed up",
-      staffslength: staffsData.length,
-      data: staffs,
-    });
-  } catch (error) {
-    if (error.code === 11000) {
-      const match = error.message.match(
-        /dup key:\s*\{\s*([\w.]+)\s*:\s*"([^"]+)"\s*\}/
-      );
-      const conflictField = match?.[1] || "unknown";
-      const conflictValue = match?.[2] || "unknown";
-
-      res.status(409).json({
-        status: "fail",
-        message: `${conflictField} "${conflictValue}" already exists`,
-        field: conflictField,
-        value: conflictValue,
-        error,
-      });
-    }
-
-    if (error.name === "ValidationError") {
-      const errors = Object.values(error.errors).map((err: any) => err.message);
-      res.status(400).json({
-        status: "fail",
-        message: "Validation failed",
-        errors,
-      });
-    }
-  }
-});
+export const excelStaffSignupLogic = excelSignupLogic(staffModel, "staff");

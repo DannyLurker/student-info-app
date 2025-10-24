@@ -22,9 +22,9 @@ const forgetPasswordLogic = (model: any) =>
     }
 
     const otp = generateOtp();
-    const otpExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    const otpExpires = new Date(Date.now() + 1 * 60 * 60 * 1000);
 
-    existingUser.otp = await bcrypt.hash(otp, 10);
+    existingUser.otp = await bcrypt.hash(otp, 12);
     existingUser.otpExpires = otpExpires;
 
     await existingUser.save({ validateBeforeSave: false });
@@ -35,8 +35,7 @@ const forgetPasswordLogic = (model: any) =>
       otp,
       message:
         "Use the following one-time password (OTP) to reset your account password: ",
-      link: `/user-reset-password/${existingUser.id}`,
-      time: new Date(),
+      time: new Date().toLocaleString(),
     });
 
     try {

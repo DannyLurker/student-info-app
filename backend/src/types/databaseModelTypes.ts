@@ -41,6 +41,8 @@ export interface IStudent {
   isActive: boolean;
   otp?: string | null;
   otpExpires?: Date | null;
+  otpLastSent?: Date | null;
+  ototpRequestCount?: number;
   createdAt?: Date;
   updatedAt?: Date;
   __v?: number;
@@ -58,6 +60,8 @@ export interface IStudentDocument extends Document {
   isActive: boolean;
   otp?: string | null;
   otpExpires?: Date | null;
+  otpLastSent?: Date | null;
+  ototpRequestCount?: number;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -152,6 +156,8 @@ export interface IStaff {
   isActive?: boolean;
   otp?: string | null;
   otpExpires?: Date | null;
+  otpLastSent?: Date | null;
+  ototpRequestCount?: number;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -167,6 +173,8 @@ export interface IStaffDocument extends Document {
   isActive?: boolean;
   otp?: string | null;
   otpExpires?: Date | null;
+  otpLastSent?: Date | null;
+  ototpRequestCount?: number;
   createdAt?: Date;
   updatedAt?: Date;
 }

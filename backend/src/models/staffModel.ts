@@ -93,6 +93,14 @@ const staffSchema = new Schema(
       type: Date,
       default: null,
     },
+    otpLastSent: {
+      type: Date,
+      default: null,
+    },
+    otpRequestCount: {
+      type: Number,
+      default: 0,
+    },
     isActive: {
       type: Boolean,
       default: true,

@@ -181,6 +181,14 @@ const studentSchema = new Schema(
       type: Date,
       default: null,
     },
+    otpLastSent: {
+      type: Date,
+      default: null,
+    },
+    otpRequestCount: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,
