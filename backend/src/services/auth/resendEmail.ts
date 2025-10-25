@@ -24,12 +24,26 @@ const resendEmail = (Model: any) =>
       return next(new AppError("Please wait 1 minute before resending", 429));
     }
 
-    // Batasi 3 kali request OTP per jam
     if (
-      existingUser.otpRequestCount >= 3 &&
-      Date.now() - existingUser.otpLastSent.getTime() < 60 * 60 * 1000
+      !existingUser.otpRequestResetAt ||
+      existingUser.otpRequestResetAt < new Date()
     ) {
-      return next(new AppError("Too many OTP requests. Try again later.", 429));
+      existingUser.otpRequestCount = 0;
+      existingUser.otpRequestResetAt = new Date(
+        Date.now() + 1 * 60 * 60 * 1000
+      );
+    }
+
+    existingUser.otpRequestCount = (existingUser.otpRequestCount || 0) + 1;
+
+    // Batasi 3 kali request OTP per jam
+    if (existingUser.otpRequestCount > 3) {
+      return next(
+        new AppError(
+          "Too many OTP requests. Try again later. Wait for an hour",
+          429
+        )
+      );
     }
 
     const otp = generateOtp();
@@ -38,7 +52,6 @@ const resendEmail = (Model: any) =>
     existingUser.otp = await bcrypt.hash(otp, 12);
     existingUser.otpExpires = otpExpires;
     existingUser.otpLastSent = new Date();
-    existingUser.otpRequestCount = (existingUser.otpRequestCount || 0) + 1;
 
     await existingUser.save({ validateBeforeSave: false });
 

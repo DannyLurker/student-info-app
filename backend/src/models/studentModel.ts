@@ -189,6 +189,10 @@ const studentSchema = new Schema(
       type: Number,
       default: 0,
     },
+    otpRequestResetAt: {
+      type: Date,
+      default: null,
+    },
   },
   {
     timestamps: true,

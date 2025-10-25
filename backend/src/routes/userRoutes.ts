@@ -22,7 +22,7 @@ import {
   excelStudentSignupLogic,
   manualStaffSignupLogic,
   manualStudentSignupLogic,
-} from "../services/auth/Signup.js";
+} from "../services/auth/signup.js";
 
 const router = express.Router();
 
@@ -51,6 +51,7 @@ router.post(
 router.post(
   "/staff-signup-with-excel",
   upload.single("excelFile"),
+  jwtVerify,
   restrictTo("admin", "principal"),
   excelStaffSignupLogic
 );
@@ -64,8 +65,8 @@ router.post("/student-forget-password", studentForgetPasswordLogic);
 router.post("/staff-forget-password", staffForgetPasswordLogic);
 
 // Reset Password
-router.post("/student-reset-password/:id", studentRestPasswordAccount);
-router.post("/staff-reset-password/:id", staffResetPasswordAccount);
+router.post("/student-reset-password", studentRestPasswordAccount);
+router.post("/staff-reset-password", staffResetPasswordAccount);
 
 // Resend Email
 router.post("/student-resend-email", studentResendEmail);

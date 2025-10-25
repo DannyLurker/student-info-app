@@ -42,7 +42,8 @@ export interface IStudent {
   otp?: string | null;
   otpExpires?: Date | null;
   otpLastSent?: Date | null;
-  ototpRequestCount?: number;
+  otpRequestCount?: number;
+  otpRequestResetAt?: Date | null;
   createdAt?: Date;
   updatedAt?: Date;
   __v?: number;
@@ -61,7 +62,8 @@ export interface IStudentDocument extends Document {
   otp?: string | null;
   otpExpires?: Date | null;
   otpLastSent?: Date | null;
-  ototpRequestCount?: number;
+  otpRequestCount?: number;
+  otpRequestResetAt?: Date | null;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -157,7 +159,8 @@ export interface IStaff {
   otp?: string | null;
   otpExpires?: Date | null;
   otpLastSent?: Date | null;
-  ototpRequestCount?: number;
+  otpRequestCount?: number;
+  otpRequestResetAt?: Date | null;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -174,7 +177,8 @@ export interface IStaffDocument extends Document {
   otp?: string | null;
   otpExpires?: Date | null;
   otpLastSent?: Date | null;
-  ototpRequestCount?: number;
+  otpRequestCount?: number;
+  otpRequestResetAt?: Date | null;
   createdAt?: Date;
   updatedAt?: Date;
 }

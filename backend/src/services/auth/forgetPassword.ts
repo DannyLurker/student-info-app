@@ -21,6 +21,35 @@ const forgetPasswordLogic = (model: any) =>
       return next(new AppError("User not found", 404));
     }
 
+    if (
+      existingUser.otpLastSent &&
+      Date.now() - existingUser.otpLastSent.getTime() < 60 * 1000
+    ) {
+      return next(new AppError("Please wait 1 minute before resending", 429));
+    }
+
+    if (
+      !existingUser.otpRequestResetAt ||
+      existingUser.otpRequestResetAt < new Date()
+    ) {
+      existingUser.otpRequestCount = 0;
+      existingUser.otpRequestResetAt = new Date(
+        Date.now() + 1 * 60 * 60 * 1000
+      );
+    }
+
+    existingUser.otpRequestCount = (existingUser.otpRequestCount || 0) + 1;
+
+    // Batasi 3 kali request OTP per jam
+    if (existingUser.otpRequestCount > 3) {
+      return next(
+        new AppError(
+          "Too many OTP requests. Try again later. Wait for an hour",
+          429
+        )
+      );
+    }
+
     const otp = generateOtp();
     const otpExpires = new Date(Date.now() + 1 * 60 * 60 * 1000);
 

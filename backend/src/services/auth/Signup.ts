@@ -77,13 +77,16 @@ const manualSignupLogic = (model: any, mandatoryFields: string[]) =>
       );
     }
 
-    const newUser = await model.create(body);
-
-    res.status(201).json({
-      status: "success",
-      message: "Successfully signed up",
-      data: newUser,
-    });
+    try {
+      const newUser = await model.create(body);
+      res.status(201).json({
+        status: "success",
+        message: "Successfully signed up",
+        data: newUser,
+      });
+    } catch (error) {
+      handleMongooseError(res, error);
+    }
   });
 
 const excelSignupLogic = (model: any, type: "staff" | "student") =>
