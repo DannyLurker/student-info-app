@@ -15,7 +15,9 @@ const forgetPasswordLogic = (model: any) =>
       return next(new AppError("Email field must be filled", 400));
     }
 
-    const existingUser = await model.findOne({ email });
+    const existingUser = await model
+      .findOne({ email })
+      .select("+otp +otpExpires");
 
     if (!existingUser) {
       return next(new AppError("User not found", 404));
@@ -75,7 +77,7 @@ const forgetPasswordLogic = (model: any) =>
       });
 
       res.status(200).json({
-        status: "Success",
+        status: "success",
         message: "A new OTP is send to your email",
       });
     } catch (error) {

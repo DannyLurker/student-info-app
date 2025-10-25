@@ -34,9 +34,11 @@ const jwtVerify = catchAsync(async (req, res, next) => {
   }
 
   if (!currentUser) {
-    return next(
-      new AppError("The user belonging to this token does not exist", 401)
-    );
+    return next(new AppError("User not found", 404));
+  }
+
+  if (!currentUser.isActive) {
+    return next(new AppError("User account is inactive", 401));
   }
 
   (req as any).user = currentUser.toObject();

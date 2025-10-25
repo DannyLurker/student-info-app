@@ -10,7 +10,7 @@ export const createResponseToken = (
 ) => {
   const token = jwtSign(user._id.toString(), user.role);
   const cookieOption = {
-    expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
+    expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite:
@@ -21,11 +21,9 @@ export const createResponseToken = (
 
   res.cookie("token", token, cookieOption);
   user.password = undefined;
-  user.otp = undefined;
   res.status(statusCode).json({
     status: "success",
     message,
-    token,
     data: {
       user,
     },

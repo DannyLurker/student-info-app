@@ -23,11 +23,11 @@ import {
   manualStaffSignupLogic,
   manualStudentSignupLogic,
 } from "../services/auth/signup.js";
+import getUserProfile from "../services/profile/getMe.js";
 
 const router = express.Router();
 
-//Auth Routes
-
+// Auth Routes //
 // Signup Routes
 router.post(
   "/student-signup",
@@ -74,5 +74,9 @@ router.post("/staff-resend-email", staffResendEmail);
 
 // Logout Email
 router.post("/user-logout", jwtVerify, userLogout);
+
+// User Profile //
+// Get User Profile
+router.get("/user-profile", jwtVerify, getUserProfile);
 
 export default router;

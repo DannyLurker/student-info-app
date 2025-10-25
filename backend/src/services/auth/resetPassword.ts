@@ -12,9 +12,11 @@ const resetPasswordLogic = (model: any) =>
       return next(new AppError("All fields must be filled", 400));
     }
 
-    const existingUser = await model.findOne({
-      email,
-    });
+    const existingUser = await model
+      .findOne({
+        email,
+      })
+      .select("+otp +otpExpires");
 
     if (password !== passwordConfirm) {
       return next(new AppError("Passwords do not match", 400));

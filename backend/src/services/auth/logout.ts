@@ -8,7 +8,7 @@ export const userLogout = catchAsync(async (req, res, next) => {
   });
 
   res.status(200).json({
-    status: "Success",
+    status: "success",
     message: "Logged out successfully",
   });
 });

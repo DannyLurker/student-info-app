@@ -13,7 +13,9 @@ const resendEmail = (Model: any) =>
 
     if (!email) return next(new AppError("Email field must be filled", 400));
 
-    const existingUser = await Model.findOne({ email });
+    const existingUser = await Model.findOne({ email }).select(
+      "+otp +otpExpires"
+    );
     if (!existingUser) return next(new AppError("User not found", 404));
 
     // Rate limit: tunggu 1 menit sebelum kirim ulang OTP

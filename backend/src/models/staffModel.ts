@@ -88,10 +88,12 @@ const staffSchema = new Schema(
     otp: {
       type: String,
       default: null,
+      select: false,
     },
     otpExpires: {
       type: Date,
       default: null,
+      select: false,
     },
     otpLastSent: {
       type: Date,
